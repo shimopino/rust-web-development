@@ -1,1 +1,7 @@
+### 最初のサンプルHTTPリクエスト
 GET http://127.0.0.1:3030/questions
+
+### CORS設定確認用
+OPTIONS http://127.0.0.1:3030/questions
+Access-Control-Request-Method: GET 
+Access-Control-Request-Headers: content-type
