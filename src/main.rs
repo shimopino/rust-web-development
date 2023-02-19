@@ -42,20 +42,43 @@ impl FromStr for QuestionId {
     }
 }
 
+impl std::fmt::Display for QuestionId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "id: {}", self.0)
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let question = Question::new(
-        QuestionId("1".to_string()),
+        QuestionId::from_str("1").expect("No id provided"),
         "First Question".to_string(),
         "Content of question".to_string(),
         Some(vec!["faq".to_string()]),
     );
-    println!("question sample {:?}", question);
+    println!("question sample {:#?}", question);
 
     let updated_question = question.update_title("Refined First Question".to_string());
-    println!("updated question sample {:?}", updated_question);
+    println!("updated question sample {:#?}", updated_question);
+
+    println!("Question ID => {}", updated_question.id);
 
     let hello = warp::get().map(|| format!("Hello, World!"));
 
     warp::serve(hello).run(([127, 0, 0, 1], 3030)).await;
+}
+
+#[test]
+fn test_question_id() {
+    let question_id = QuestionId::from_str("123").unwrap();
+
+    // QuestionId のままだと等価比較のトレイトを実装していないのでエラーになる
+    assert_eq!(question_id.0, "123".to_string());
+}
+
+#[test]
+fn test_invalid_question_id() {
+    let empty_question_id = QuestionId::from_str("");
+
+    assert_eq!(empty_question_id.is_err(), true);
 }
