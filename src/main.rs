@@ -25,6 +25,10 @@ impl Question {
             tags,
         }
     }
+
+    fn update_title(self, new_title: String) -> Self {
+        Question::new(self.id, new_title, self.content, self.tags)
+    }
 }
 
 impl FromStr for QuestionId {
@@ -40,6 +44,17 @@ impl FromStr for QuestionId {
 
 #[tokio::main]
 async fn main() {
+    let question = Question::new(
+        QuestionId("1".to_string()),
+        "First Question".to_string(),
+        "Content of question".to_string(),
+        Some(vec!["faq".to_string()]),
+    );
+    println!("question sample {:?}", question);
+
+    let updated_question = question.update_title("Refined First Question".to_string());
+    println!("updated question sample {:?}", updated_question);
+
     let hello = warp::get().map(|| format!("Hello, World!"));
 
     warp::serve(hello).run(([127, 0, 0, 1], 3030)).await;
