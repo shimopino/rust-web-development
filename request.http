@@ -1,7 +1,29 @@
 ### 最初のサンプルHTTPリクエスト
 GET http://127.0.0.1:3030/questions
 
+### クエリパラメータの検証
+GET http://127.0.0.1:3030/questions?start=0&end=1&sample=100
+
 ### CORS設定確認用
 OPTIONS http://127.0.0.1:3030/questions
 Access-Control-Request-Method: GET 
 Access-Control-Request-Headers: content-type
+
+### Question追加用
+POST http://127.0.0.1:3030/questions
+Content-Type: application/json
+
+{
+    "title": "New Question",
+    "content": "How does this work again?"
+}
+
+### 質問文の修正
+PUT http://127.0.0.1:3030/questions
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "New Title",
+    "content": "Old Content"
+}
