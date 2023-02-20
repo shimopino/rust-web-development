@@ -41,3 +41,10 @@ struct QuestionId(String);
         .and_then(get_questions) // 1つ先の入力の引数となる
         .recover(return_error);
 ```
+
+## リクエスト間でのデータ共有
+
+- `Mutex`
+  - 読み取りも書き込みも合わせた排他制御
+- `RwLock`
+  - 読み取りは共有参照、書き込みは排他制御を行う
