@@ -14,3 +14,8 @@ serde_json = "1.0"
 
 # 自作ライブラリ
 handle-errors = { path = "handle-errors" }
+
+# ログ周りを追加
+log = "0.4"
+env_logger = "0.9"
+log4rs = "1.0"

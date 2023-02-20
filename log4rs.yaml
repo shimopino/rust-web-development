@@ -1,0 +1,15 @@
+# 30秒ごとに変更を検知して、実行中に設定変更ができる
+refresh_rate: 30 seconds
+appenders:
+  stdout:
+    kind: console
+  file:
+    kind: file
+    path: "stderr.log"
+    encoder:
+      pattern: "{d} - {m}{n}"
+root:
+  level: info
+  appenders:
+    - stdout
+    - file
