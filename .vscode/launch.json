@@ -1,0 +1,41 @@
+{
+    "configurations": [
+    {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Debug executable 'practical-rust-book'",
+        "cargo": {
+            "args": [
+                "build",
+                "--bin=practical-rust-book",
+                "--package=practical-rust-book"
+            ],
+            "filter": {
+                "name": "practical-rust-book",
+                "kind": "bin"
+            }
+        },
+        "args": [],
+        "cwd": "${workspaceFolder}"
+    },
+    {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Debug unit tests in executable 'rust-web-development'",
+        "cargo": {
+            "args": [
+                "test",
+                "--no-run",
+                "--bin=rust-web-development",
+                "--package=rust-web-development"
+            ],
+            "filter": {
+                "name": "rust-web-development",
+                "kind": "bin"
+            }
+        },
+        "args": [],
+        "cwd": "${workspaceFolder}"
+    }
+    ]
+}
