@@ -117,3 +117,25 @@ $ curl --request POST \
   ],
   "censored_content": "{ \"title\": \"****\" }"}
 ```
+
+## 外部ライブラリの検証
+
+[Secure Rust Guidelines](https://anssi-fr.github.io/rust-guide/04_language.html)
+
+```bash
+# https://github.com/crev-dev/cargo-crev
+$ cargo install cargo-crev
+$ cargo crev trust --level high https://github.com/dpc/crev-proofs
+$ cargo crev repo fetch all
+
+# 検証を実施
+$ cargo crev verify --show-all
+
+# 個別のライブラリの詳細を検証
+cargo crev repo query issue <crate> <version>
+```
+
+```bash
+$ cargo install cargo-audit
+$ cargo audit
+```
