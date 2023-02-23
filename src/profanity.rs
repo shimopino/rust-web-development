@@ -34,7 +34,7 @@ pub async fn check_profanity(
         ExponentialBackoff::builder().build_with_max_retries(3);
 
     let api_key =
-        std::env::var("API_KEY").unwrap_or("Nothing".to_string());
+        std::env::var("API_KEY").unwrap_or_else(|_| "Nothing".to_string());
 
     let client = ClientBuilder::new(reqwest::Client::new())
         .with(RetryTransientMiddleware::new_with_policy(retry_policy))
