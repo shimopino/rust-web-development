@@ -1,3 +1,5 @@
+use std::env;
+
 use reqwest_middleware::ClientBuilder;
 use reqwest_retry::{
     policies::ExponentialBackoff, RetryTransientMiddleware,
@@ -30,11 +32,11 @@ struct BadWordsResponse {
 pub async fn check_profanity(
     content: String,
 ) -> Result<String, handle_errors::Error> {
+    // main関数で環境変数が設定されているかどうかは検証済みなので unwrap
+    let api_key = env::var("BAD_WORDS_API_KEY").unwrap();
+
     let retry_policy =
         ExponentialBackoff::builder().build_with_max_retries(3);
-
-    let api_key =
-        std::env::var("API_KEY").unwrap_or_else(|_| "Nothing".to_string());
 
     let client = ClientBuilder::new(reqwest::Client::new())
         .with(RetryTransientMiddleware::new_with_policy(retry_policy))

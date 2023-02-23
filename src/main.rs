@@ -2,6 +2,7 @@
 
 use clap::Parser;
 use handle_errors::return_error;
+use std::env;
 use tracing_subscriber::fmt::format::FmtSpan;
 use warp::{http::Method, Filter};
 
@@ -16,8 +17,7 @@ mod types;
 /// $ cargo run --bin rust-web-dev \
 ///     --database-host localhost \
 ///     --log-level info \
-///     --database-name rustwebdev \
-///     --port 8080
+///     --database-name rustwebdev
 /// ```
 ///
 /// バイナリ起動時にも引数として設定することが可能
@@ -26,8 +26,7 @@ mod types;
 /// $ ./target/debug/rustwebdev \
 ///     --database-host localhost \
 ///     --log-level info \
-///     --database-name rustwebdev \
-///     --port 8080
+///     --database-name rustwebdev
 /// ```
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -44,12 +43,26 @@ struct Args {
     database_user: String,
     #[clap(long, default_value = "rustwebdev")]
     database_password: String,
-    #[clap(long, default_value = "3030")]
-    port: u16,
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), handle_errors::Error> {
+    dotenv::dotenv().ok();
+
+    if env::var("BAD_WORDS_API_KEY").is_err() {
+        panic!("BadWords API KEYが設定されていない");
+    }
+
+    if env::var("PASETO_KEY").is_err() {
+        panic!("PASETO KEYが設定されていない");
+    }
+
+    let port = std::env::var("PORT")
+        .ok()
+        .map(|val| val.parse::<u16>())
+        .unwrap_or(Ok(3030))
+        .map_err(handle_errors::Error::ParseError)?;
+
     let args = Args::parse();
 
     let log_filter = std::env::var("RUST_LOG").unwrap_or_else(|_| {
@@ -67,12 +80,13 @@ async fn main() {
         args.database_port,
         args.database_name
     ))
-    .await;
+    .await
+    .map_err(handle_errors::Error::DatabaseQueryError)?;
 
     sqlx::migrate!()
         .run(&store.clone().connection)
         .await
-        .expect("Cannot migrate DB");
+        .map_err(handle_errors::Error::MigrationError)?;
 
     let store_filter = warp::any().map(move || store.clone());
 
@@ -160,5 +174,7 @@ async fn main() {
         .with(warp::trace::request())
         .recover(return_error);
 
-    warp::serve(routes).run(([127, 0, 0, 1], args.port)).await;
+    warp::serve(routes).run(([127, 0, 0, 1], port)).await;
+
+    Ok(())
 }
