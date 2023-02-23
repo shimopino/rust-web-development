@@ -90,3 +90,30 @@ CREATE TABLE IF NOT EXISTS answers (
 $ sqlx migrate add -r questions_table
 $ sqlx migrate add -r answers_table
 ```
+
+## 外部 API
+
+apilayer の bad words api を使用する
+
+```bash
+$ curl --request POST \
+  --url 'https://api.apilayer.com/bad_words?censor_charactor=*' \
+  --header 'apikey: 35CID42ET40KTouKLhGPGRdBYEEhWr4d' \
+  --data-raw '{ "title": "fuck" }'
+
+{
+  "content": "{ \"title\": \"fuck\" }",
+  "bad_words_total": 1,
+  "bad_words_list": [
+    {
+      "original": "fuck",
+      "word": "fuck",
+      "deviations": 0,
+      "info": 2,
+      "start": 9,
+      "end": 13,
+      "replacedLen": 4
+    }
+  ],
+  "censored_content": "{ \"title\": \"****\" }"}
+```
