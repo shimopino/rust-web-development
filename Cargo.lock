@@ -1539,6 +1539,7 @@ dependencies = [
 name = "rust-web-development"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "handle-errors",
  "hyper",
  "paseto",

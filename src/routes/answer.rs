@@ -2,10 +2,13 @@ use tracing::{event, Level};
 use warp::http::StatusCode;
 
 use crate::{
-    profanity::check_profanity, store::Store, types::answer::NewAnswer,
+    profanity::check_profanity,
+    store::Store,
+    types::{account::Session, answer::NewAnswer},
 };
 
 pub async fn add_answer(
+    session: Session,
     store: Store,
     new_answer: NewAnswer,
 ) -> Result<impl warp::Reply, warp::Rejection> {

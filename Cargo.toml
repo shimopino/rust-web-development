@@ -36,3 +36,5 @@ sqlx = { version = "0.5", features = [ "runtime-tokio-rustls", "migrate", "postg
 rand = "0.8"
 rust-argon2 = "1.0"
 paseto = "2.0"
+# 有効期限の設定
+chrono = "0.4.19"
