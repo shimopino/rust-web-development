@@ -16,6 +16,21 @@ pub async fn get_questions(
     store: Store,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     event!(target: "rust-web-development", Level::INFO, "querying questions");
+
+    let client = reqwest::Client::new();
+    let res = client
+        .post("https://api.apilayer.com/bad_words?censor_charactor=*")
+        .header("apikey", "api_key")
+        .body("a list with shit words")
+        .send()
+        .await
+        .map_err(|e| handle_errors::Error::ExternalAPIError(e))?
+        .text()
+        .await
+        .map_err(|e| handle_errors::Error::ExternalAPIError(e))?;
+
+    println!("{}", res);
+
     let mut pagination = Pagination::default();
 
     if !params.is_empty() {

@@ -1,7 +1,8 @@
+use reqwest::Error as ReqwestError;
 use tracing::{event, Level};
 use warp::{
-    body::BodyDeserializeError, cors::CorsForbidden, http::StatusCode, reject::Reject, Rejection,
-    Reply,
+    body::BodyDeserializeError, cors::CorsForbidden, http::StatusCode,
+    reject::Reject, Rejection, Reply,
 };
 
 #[derive(Debug)]
@@ -9,14 +10,22 @@ pub enum Error {
     ParseError(std::num::ParseIntError),
     MissingParameters,
     DatabaseQueryError,
+    ExternalAPIError(ReqwestError),
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match *self {
-            Error::ParseError(ref err) => write!(f, "Cannot parse parameters: {}", err),
+        match self {
+            Error::ParseError(ref err) => {
+                write!(f, "Cannot parse parameters: {}", err)
+            }
             Error::MissingParameters => write!(f, "Missing Parameter"),
-            Error::DatabaseQueryError => write!(f, "Query could not be executed"),
+            Error::DatabaseQueryError => {
+                write!(f, "Query could not be executed")
+            }
+            Error::ExternalAPIError(err) => {
+                write!(f, "Cannot execute: {}", err)
+            }
         }
     }
 }
@@ -30,6 +39,12 @@ pub async fn return_error(r: Rejection) -> Result<impl Reply, Rejection> {
         Ok(warp::reply::with_status(
             crate::Error::DatabaseQueryError.to_string(),
             StatusCode::RANGE_NOT_SATISFIABLE,
+        ))
+    } else if let Some(crate::Error::ExternalAPIError(e)) = r.find() {
+        event!(Level::ERROR, "{}", e);
+        Ok(warp::reply::with_status(
+            "Internal Server Error".to_string(),
+            StatusCode::INTERNAL_SERVER_ERROR,
         ))
     } else if let Some(error) = r.find::<CorsForbidden>() {
         event!(Level::ERROR, "CORS forbidden error {}", error);
