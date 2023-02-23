@@ -10,11 +10,20 @@ mod types;
 
 #[tokio::main]
 async fn main() {
-    let log_filter = std::env::var("RUST_LOG")
-        .unwrap_or_else(|_| "rust_web_development=info,warp=error".to_owned());
+    let log_filter = std::env::var("RUST_LOG").unwrap_or_else(|_| {
+        "rust_web_development=info,warp=error".to_owned()
+    });
 
-    let store =
-        store::Store::new("postgres://rustwebdev:rustwebdev@localhost:5432/rustwebdev").await;
+    let store = store::Store::new(
+        "postgres://rustwebdev:rustwebdev@localhost:5432/rustwebdev",
+    )
+    .await;
+
+    sqlx::migrate!()
+        .run(&store.clone().connection)
+        .await
+        .expect("Cannot migrate DB");
+
     let store_filter = warp::any().map(move || store.clone());
 
     tracing_subscriber::fmt()
@@ -27,22 +36,19 @@ async fn main() {
     let cors = warp::cors()
         .allow_any_origin()
         .allow_header("content-type")
-        .allow_methods(&[Method::PUT, Method::DELETE, Method::GET, Method::POST]);
+        .allow_methods(&[
+            Method::PUT,
+            Method::DELETE,
+            Method::GET,
+            Method::POST,
+        ]);
 
     let get_questions = warp::get()
         .and(warp::path("questions"))
         .and(warp::path::end())
         .and(warp::query())
         .and(store_filter.clone())
-        .and_then(routes::question::get_questions)
-        .with(warp::trace(|info| {
-            tracing::info_span!(
-                "get_questions request",
-                method = %info.method(),
-                path = %info.path(),
-                id = %uuid::Uuid::new_v4(),
-            )
-        }));
+        .and_then(routes::question::get_questions);
 
     let add_question = warp::post()
         .and(warp::path("questions"))

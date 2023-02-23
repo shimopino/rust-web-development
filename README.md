@@ -63,7 +63,10 @@ struct QuestionId(String);
 
 ## 最初のテーブル
 
+今回の型に従うテーブル定義を作成する
+
 ```sql
+-- 解答テーブル
 CREATE TABLE IF NOT EXISTS questions (
     id serial PRIMARY KEY,
     title VARCHAR (255) NOT NULL,
@@ -71,4 +74,19 @@ CREATE TABLE IF NOT EXISTS questions (
     tags TEXT [],
     created_on TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- 質問テーブル
+CREATE TABLE IF NOT EXISTS answers (
+    id serial PRIMARY KEY,
+    content TEXT NOT NULL,
+    created_on TIMESTAMP NOT NULL DEFAULT NOW(),
+    corresponding_question integer REFERENCES questions
+);
+```
+
+マイグレーションファイルを初期化することで、マイグレーションを適用する時とロールバックするときに動かす処理を記載する
+
+```bash
+$ sqlx migrate add -r questions_table
+$ sqlx migrate add -r answers_table
 ```
