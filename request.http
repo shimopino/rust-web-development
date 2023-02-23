@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
     "title": "New Question",
-    "content": "How does this work again?",
+    "content": "How does this shit work again?",
     "tags": ["normal", "high"]
 }
 

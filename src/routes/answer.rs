@@ -1,7 +1,9 @@
 use tracing::{event, Level};
 use warp::http::StatusCode;
 
-use crate::{store::Store, types::answer::NewAnswer};
+use crate::{
+    profanity::check_profanity, store::Store, types::answer::NewAnswer,
+};
 
 pub async fn add_answer(
     store: Store,
@@ -9,7 +11,17 @@ pub async fn add_answer(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     event!(target: "rust-web-development", Level::INFO, "adding answers");
 
-    match store.add_answer(new_answer).await {
+    let content = match check_profanity(new_answer.content).await {
+        Ok(res) => res,
+        Err(e) => return Err(warp::reject::custom(e)),
+    };
+
+    let answer = NewAnswer {
+        content,
+        question_id: new_answer.question_id,
+    };
+
+    match store.add_answer(answer).await {
         Ok(_) => {
             Ok(warp::reply::with_status("Answer Added", StatusCode::OK))
         }
