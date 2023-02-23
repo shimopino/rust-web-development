@@ -1,5 +1,6 @@
 #![warn(clippy::all)]
 
+use clap::Parser;
 use handle_errors::return_error;
 use tracing_subscriber::fmt::format::FmtSpan;
 use warp::{http::Method, Filter};
@@ -9,15 +10,63 @@ mod routes;
 mod store;
 mod types;
 
+/// clapを使用して起動時に引数でパラメータを指定できる
+///
+/// ```bash
+/// $ cargo run --bin rust-web-dev \
+///     --database-host localhost \
+///     --log-level info \
+///     --database-name rustwebdev \
+///     --port 8080
+/// ```
+///
+/// バイナリ起動時にも引数として設定することが可能
+///
+/// ```bash
+/// $ ./target/debug/rustwebdev \
+///     --database-host localhost \
+///     --log-level info \
+///     --database-name rustwebdev \
+///     --port 8080
+/// ```
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    #[clap(short, long, default_value = "warn")]
+    log_level: String,
+    #[clap(long, default_value = "localhost")]
+    database_host: String,
+    #[clap(long, default_value = "5432")]
+    database_port: u16,
+    #[clap(long, default_value = "rustwebdev")]
+    database_name: String,
+    #[clap(long, default_value = "rustwebdev")]
+    database_user: String,
+    #[clap(long, default_value = "rustwebdev")]
+    database_password: String,
+    #[clap(long, default_value = "3030")]
+    port: u16,
+}
+
 #[tokio::main]
 async fn main() {
+    let args = Args::parse();
+
     let log_filter = std::env::var("RUST_LOG").unwrap_or_else(|_| {
-        "rust_web_development=info,warp=error".to_owned()
+        format!(
+            "handle_errors={},rust-web-dev={},warp={}",
+            args.log_level, args.log_level, args.log_level
+        )
     });
 
-    let store = store::Store::new(
-        "postgres://rustwebdev:rustwebdev@localhost:5432/rustwebdev",
-    )
+    let store = store::Store::new(&format!(
+        "postgres://{}:{}@{}:{}/{}",
+        args.database_user,
+        args.database_password,
+        args.database_host,
+        args.database_port,
+        args.database_name
+    ))
     .await;
 
     sqlx::migrate!()
@@ -111,5 +160,5 @@ async fn main() {
         .with(warp::trace::request())
         .recover(return_error);
 
-    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
+    warp::serve(routes).run(([127, 0, 0, 1], args.port)).await;
 }

@@ -1,0 +1,7 @@
+log_level = "warn"
+database_host = "localhost"
+database_port = 5432
+database_name = "rustwebdev"
+database_user = "rustwebdev"
+database_password = "rustwebdev"
+port = 3030
