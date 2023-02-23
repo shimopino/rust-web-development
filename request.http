@@ -12,6 +12,7 @@ Access-Control-Request-Headers: content-type
 ### Question追加用
 POST http://127.0.0.1:3030/questions
 Content-Type: application/json
+Authorization: "token"
 
 {
     "title": "New Question",
@@ -22,6 +23,7 @@ Content-Type: application/json
 ### 質問文の修正
 PUT http://127.0.0.1:3030/questions/1
 Content-Type: application/json
+Authorization: "token"
 
 {
     "id": 1,
@@ -32,10 +34,12 @@ Content-Type: application/json
 
 ### 質問文の削除
 DELETE http://127.0.0.1:3030/questions/1
+Authorization: "token"
 
 ### 解答の追加
 POST http://127.0.0.1:3030/answers
 Content-Type: application/json
+Authorization: "token"
 
 {
     "title": "New Question",

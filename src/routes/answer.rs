@@ -24,7 +24,7 @@ pub async fn add_answer(
         question_id: new_answer.question_id,
     };
 
-    match store.add_answer(answer).await {
+    match store.add_answer(answer, session.account_id).await {
         Ok(_) => {
             Ok(warp::reply::with_status("Answer Added", StatusCode::OK))
         }

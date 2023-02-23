@@ -6,7 +6,7 @@ use crate::{
     profanity::check_profanity,
     store::Store,
     types::{
-        account::{self, Session},
+        account::Session,
         pagination::{extract_pagination, Pagination},
         question::{NewQuestion, Question},
     },
@@ -63,7 +63,7 @@ pub async fn update_question(
             tags: question.tags,
         };
 
-        match store.update_question(question, id).await {
+        match store.update_question(question, id, account_id).await {
             Ok(res) => Ok(warp::reply::json(&res)),
             Err(e) => Err(warp::reject::custom(e)),
         }
@@ -77,7 +77,7 @@ pub async fn delete_question(
     session: Session,
     store: Store,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    match store.delete_question(id).await {
+    match store.delete_question(id, session.account_id).await {
         Ok(_) => Ok(warp::reply::with_status(
             format!("Question {} deleted", id),
             StatusCode::OK,
@@ -107,7 +107,7 @@ pub async fn add_question(
         tags: new_question.tags,
     };
 
-    match store.add_question(question).await {
+    match store.add_question(question, session.account_id).await {
         Ok(question) => Ok(warp::reply::json(&question)),
         Err(e) => Err(warp::reject::custom(e)),
     }
