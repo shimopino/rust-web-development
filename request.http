@@ -42,3 +42,13 @@ Content-Type: application/json
     "content": "How does this work again?",
     "question_id": 1
 }
+
+### ユーザー登録
+POST http://127.0.0.1:3030/registration
+Content-Type: application/json
+
+{
+    "id": 1,
+    "email": "shimokawa@example.com",
+    "password": "sample"
+}

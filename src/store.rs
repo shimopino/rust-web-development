@@ -51,7 +51,7 @@ impl Store {
             Ok(questions) => Ok(questions),
             Err(e) => {
                 tracing::event!(tracing::Level::ERROR, "{:?}", e);
-                Err(Error::DatabaseQueryError)
+                Err(Error::DatabaseQueryError(e))
             }
         }
     }
@@ -80,7 +80,7 @@ impl Store {
             Ok(question) => Ok(question),
             Err(e) => {
                 tracing::event!(tracing::Level::ERROR, "{:?}", e);
-                Err(Error::DatabaseQueryError)
+                Err(Error::DatabaseQueryError(e))
             }
         }
     }
@@ -112,7 +112,7 @@ impl Store {
             Ok(question) => Ok(question),
             Err(e) => {
                 tracing::event!(tracing::Level::ERROR, "{:?}", e);
-                Err(Error::DatabaseQueryError)
+                Err(Error::DatabaseQueryError(e))
             }
         }
     }
@@ -129,7 +129,7 @@ impl Store {
             Ok(_) => Ok(true),
             Err(e) => {
                 tracing::event!(tracing::Level::ERROR, "{:?}", e);
-                Err(Error::DatabaseQueryError)
+                Err(Error::DatabaseQueryError(e))
             }
         }
     }
@@ -154,7 +154,7 @@ impl Store {
             Ok(answer) => Ok(answer),
             Err(e) => {
                 tracing::event!(tracing::Level::ERROR, "{:?}", e);
-                Err(Error::DatabaseQueryError)
+                Err(Error::DatabaseQueryError(e))
             }
         }
     }
@@ -191,7 +191,7 @@ impl Store {
                         .constraint()
                         .unwrap()
                 );
-                Err(Error::DatabaseQueryError)
+                Err(Error::DatabaseQueryError(error))
             }
         }
     }
