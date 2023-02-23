@@ -60,3 +60,15 @@ struct QuestionId(String);
 - Subscribers
   - 全てのイベントを収集し、どのように扱うのかを決定する
   - ロガーの初期化の時と同じように設定する
+
+## 最初のテーブル
+
+```sql
+CREATE TABLE IF NOT EXISTS questions (
+    id serial PRIMARY KEY,
+    title VARCHAR (255) NOT NULL,
+    content TEXT NOT NULL,
+    tags TEXT [],
+    created_on TIMESTAMP NOT NULL DEFAULT NOW()
+);
+```
