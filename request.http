@@ -52,3 +52,12 @@ Content-Type: application/json
     "email": "shimokawa@example.com",
     "password": "sample"
 }
+
+### ログイン
+POST http://127.0.0.1:3030/login
+Content-Type: application/json
+
+{
+    "email": "shimokawa@example.com",
+    "password": "sample"
+}
