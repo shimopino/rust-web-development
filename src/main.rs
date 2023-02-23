@@ -82,8 +82,8 @@ async fn main() {
     let routes = get_questions
         .or(update_question)
         .or(add_question)
-        .or(add_answer)
         .or(delete_question)
+        .or(add_answer)
         .with(cors)
         .with(warp::trace::request())
         .recover(return_error);
