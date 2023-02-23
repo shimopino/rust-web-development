@@ -44,6 +44,14 @@ async fn main() {
             Method::POST,
         ]);
 
+    // ルートハンドラー
+    let registration = warp::post()
+        .and(warp::path("registration"))
+        .and(warp::path::end())
+        .and(store_filter.clone())
+        .and(warp::body::json())
+        .and_then(routes::authentication::register);
+
     let get_questions = warp::get()
         .and(warp::path("questions"))
         .and(warp::path::end())
@@ -85,6 +93,7 @@ async fn main() {
         .or(add_question)
         .or(delete_question)
         .or(add_answer)
+        .or(registration)
         .with(cors)
         .with(warp::trace::request())
         .recover(return_error);

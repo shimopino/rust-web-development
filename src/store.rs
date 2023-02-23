@@ -4,6 +4,7 @@ use sqlx::{
 };
 
 use crate::types::{
+    account::Account,
     answer::{Answer, AnswerId, NewAnswer},
     question::{NewQuestion, Question, QuestionId},
 };
@@ -55,7 +56,10 @@ impl Store {
         }
     }
 
-    pub async fn add_question(&self, new_question: NewQuestion) -> Result<Question, Error> {
+    pub async fn add_question(
+        &self,
+        new_question: NewQuestion,
+    ) -> Result<Question, Error> {
         match sqlx::query(
             "INSERT INTO questions (title, content, tags) 
                 VALUES ($1, $2, $3) 
@@ -113,7 +117,10 @@ impl Store {
         }
     }
 
-    pub async fn delete_question(&self, question_id: i32) -> Result<bool, Error> {
+    pub async fn delete_question(
+        &self,
+        question_id: i32,
+    ) -> Result<bool, Error> {
         match sqlx::query("DELETE FROM questions WHERE id = $1")
             .bind(question_id)
             .execute(&self.connection)
@@ -127,21 +134,63 @@ impl Store {
         }
     }
 
-    pub async fn add_answer(&self, new_answer: NewAnswer) -> Result<Answer, Error> {
-        match sqlx::query("INSERT INTO answers (content, question_id) VALUES ($1, $2)")
-            .bind(new_answer.content)
-            .bind(new_answer.question_id.0)
-            .map(|row: PgRow| Answer {
-                id: AnswerId(row.get("id")),
-                content: row.get("content"),
-                question_id: QuestionId(row.get("question_id")),
-            })
-            .fetch_one(&self.connection)
-            .await
+    pub async fn add_answer(
+        &self,
+        new_answer: NewAnswer,
+    ) -> Result<Answer, Error> {
+        match sqlx::query(
+            "INSERT INTO answers (content, question_id) VALUES ($1, $2)",
+        )
+        .bind(new_answer.content)
+        .bind(new_answer.question_id.0)
+        .map(|row: PgRow| Answer {
+            id: AnswerId(row.get("id")),
+            content: row.get("content"),
+            question_id: QuestionId(row.get("question_id")),
+        })
+        .fetch_one(&self.connection)
+        .await
         {
             Ok(answer) => Ok(answer),
             Err(e) => {
                 tracing::event!(tracing::Level::ERROR, "{:?}", e);
+                Err(Error::DatabaseQueryError)
+            }
+        }
+    }
+
+    pub async fn add_account(
+        &self,
+        account: Account,
+    ) -> Result<bool, Error> {
+        match sqlx::query(
+            "INSERT INTO accounts (email, password)
+            VALUES ($1, $2)",
+        )
+        .bind(account.email)
+        .bind(account.password)
+        .execute(&self.connection)
+        .await
+        {
+            Ok(_) => Ok(true),
+            Err(error) => {
+                tracing::event!(
+                    tracing::Level::ERROR,
+                    code = error
+                        .as_database_error()
+                        .unwrap()
+                        .code()
+                        .unwrap()
+                        .parse::<i32>()
+                        .unwrap(),
+                    db_message =
+                        error.as_database_error().unwrap().message(),
+                    constraint = error
+                        .as_database_error()
+                        .unwrap()
+                        .constraint()
+                        .unwrap()
+                );
                 Err(Error::DatabaseQueryError)
             }
         }
