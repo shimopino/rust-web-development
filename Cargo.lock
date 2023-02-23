@@ -1072,6 +1072,7 @@ name = "rust-web-development"
 version = "0.1.0"
 dependencies = [
  "handle-errors",
+ "hyper",
  "reqwest",
  "serde",
  "serde_json",
