@@ -6,7 +6,11 @@ $(error DB_PASSWORD is not set)
 endif
 
 watch:
+
 	RUST_LOG=${RUST_LOG} cargo watch -x check -x clippy -x 'run --bin ${RUST_APP} -- --database-password ${DB_PASSWORD}'
+
+test:
+	cargo watch -x check -x clippy -x test
 
 request:
 	cargo run --bin reqwest

@@ -95,17 +95,14 @@ mod config_test {
     }
 
     #[test]
-    fn unset_api_key() {
-        let result = std::panic::catch_unwind(|| Config::new());
-
-        assert!(result.is_err())
-    }
-
-    #[test]
     fn set_api_key() {
         // 環境変数を設定すると他のテストケースにも影響を与えてしまう
         // 簡単だけど副作用の大きい解決策は `cargo test -- --test-threads=1` で実行して直列実行
         // あるいは2つのテストケースを1つのケースで実行する
+        let result = std::panic::catch_unwind(|| Config::new());
+
+        assert!(result.is_err());
+
         set_env();
 
         let expected = Config {
