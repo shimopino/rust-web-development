@@ -13,6 +13,8 @@ mod types;
 
 #[tokio::main]
 async fn main() -> Result<(), handle_errors::Error> {
+    dotenv::dotenv().ok();
+
     let config = config::Config::new().expect("設定されていません");
 
     let log_filter = std::env::var("RUST_LOG").unwrap_or_else(|_| {

@@ -19,7 +19,7 @@ use clap::Parser;
 ///     --log-level info \
 ///     --database-name rustwebdev
 /// ```
-#[derive(Parser, Debug)]
+#[derive(Parser, Debug, PartialEq)]
 #[clap(author, version, about, long_about = None)]
 pub struct Config {
     #[clap(short, long, default_value = "warn")]
@@ -32,7 +32,7 @@ pub struct Config {
     pub database_name: String,
     #[clap(long, default_value = "rustwebdev")]
     pub database_user: String,
-    #[clap(long)]
+    #[clap(long, default_value = "rustwebdev")]
     pub database_password: String,
     #[clap(short, long, default_value = "3030")]
     pub port: u16,
@@ -40,7 +40,6 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Result<Self, handle_errors::Error> {
-        dotenv::dotenv().ok();
         let config = Config::parse();
 
         if env::var("BAD_WORDS_API_KEY").is_err() {
@@ -78,5 +77,49 @@ impl Config {
                 .map_err(handle_errors::Error::ParseError)?,
             port,
         })
+    }
+}
+
+#[cfg(test)]
+mod config_test {
+    use super::*;
+
+    fn set_env() {
+        env::set_var("BAD_WORDS_API_KEY", "yes");
+        env::set_var("PASETO_KEY", "yes");
+        env::set_var("POSTGRES_USER", "user");
+        env::set_var("POSTGRES_PASSWORD", "pass");
+        env::set_var("POSTGRES_HOST", "localhost");
+        env::set_var("POSTGRES_PORT", "5432");
+        env::set_var("POSTGRES_DB", "rustwebdev");
+    }
+
+    #[test]
+    fn unset_api_key() {
+        let result = std::panic::catch_unwind(|| Config::new());
+
+        assert!(result.is_err())
+    }
+
+    #[test]
+    fn set_api_key() {
+        // 環境変数を設定すると他のテストケースにも影響を与えてしまう
+        // 簡単だけど副作用の大きい解決策は `cargo test -- --test-threads=1` で実行して直列実行
+        // あるいは2つのテストケースを1つのケースで実行する
+        set_env();
+
+        let expected = Config {
+            log_level: "warn".to_string(),
+            port: 3030,
+            database_user: "user".to_string(),
+            database_password: "pass".to_string(),
+            database_host: "localhost".to_string(),
+            database_port: 5432,
+            database_name: "rustwebdev".to_string(),
+        };
+
+        let config = Config::new().unwrap();
+
+        assert_eq!(config, expected);
     }
 }
