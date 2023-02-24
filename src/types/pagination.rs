@@ -2,7 +2,7 @@ use handle_errors::Error;
 use std::collections::HashMap;
 
 /// Paginationの構造体であり、クエリパラメータから値を抽出する
-#[derive(Default, Debug)]
+#[derive(Default, Debug, PartialEq)]
 pub struct Pagination {
     /// 最後に返さなければならない項目のインデックス
     pub limit: Option<u32>,
@@ -24,7 +24,9 @@ pub struct Pagination {
 /// assert(p.limit, Some(1));
 /// assert(p.offset, 10);
 /// ```
-pub fn extract_pagination(params: HashMap<String, String>) -> Result<Pagination, Error> {
+pub fn extract_pagination(
+    params: HashMap<String, String>,
+) -> Result<Pagination, Error> {
     if params.contains_key("limit") && params.contains_key("offset") {
         return Ok(Pagination {
             limit: Some(
@@ -43,4 +45,27 @@ pub fn extract_pagination(params: HashMap<String, String>) -> Result<Pagination,
     }
 
     Err(Error::MissingParameters)
+}
+
+#[cfg(test)]
+mod pagination_tests {
+    use std::collections::HashMap;
+
+    use super::{extract_pagination, Pagination};
+
+    #[test]
+    fn valid_pagination() {
+        let mut params = HashMap::new();
+        params.insert(String::from("limit"), String::from("1"));
+        params.insert(String::from("offset"), String::from("10"));
+
+        let pagination_result = extract_pagination(params);
+
+        let expected = Pagination {
+            limit: Some(1),
+            offset: 10,
+        };
+
+        assert_eq!(pagination_result.unwrap(), expected);
+    }
 }
