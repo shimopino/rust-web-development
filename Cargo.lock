@@ -1089,6 +1089,12 @@ dependencies = [
 [[package]]
 name = "mock-server"
 version = "0.1.0"
+dependencies = [
+ "bytes",
+ "serde_json",
+ "tokio",
+ "warp",
+]
 
 [[package]]
 name = "multipart"
