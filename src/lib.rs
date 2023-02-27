@@ -1,6 +1,7 @@
 #![warn(clippy::all)]
 
-use handle_errors::return_error;
+pub use handle_errors;
+
 use tokio::sync::oneshot::{self, Sender};
 use tracing_subscriber::fmt::format::FmtSpan;
 use warp::{http::Method, Filter, Reply};
@@ -91,7 +92,7 @@ async fn build_routes(
         .or(login)
         .with(cors)
         .with(warp::trace::request())
-        .recover(return_error)
+        .recover(handle_errors::return_error)
 }
 
 pub async fn setup_store(
